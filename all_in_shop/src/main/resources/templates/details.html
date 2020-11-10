@@ -1,0 +1,38 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorate="~{main.html}">
+<section layout:fragment="content">
+    <div th:insert="search_form"></div>
+    <div>
+        <div class="card">
+            <img th:src="${item.largePicURL}" class="card-img-top w-100" alt="...">
+            <div class="card-body">
+                <h5 class="card-title text-primary" th:text="${item.name}"></h5>
+                <h6 th:text="${item.price +' USD'}"></h6>
+                <p class="card-text" th:text="${item.description}"></p>
+                <h6 class="ml-1 text-uppercase font-weight-bold row">
+                    <span th:text="#{h6.brand}" class="mr-1"></span>
+                    <a th:href="@{'/search/advanced/?brand='+${item.brands.id}}" th:text="${item.brands.name+','}" class="mr-1"></a>
+                    <a th:href="@{'/country?id='+${item.brands.countries.id}}" th:text="${item.brands.countries.code}"></a>
+                </h6>
+            </div>
+            <div class="ml-1 card-footer">
+                <div class="row">
+                    <h5 th:style="${(item.stars>0)}? 'color: yellow' : 'color: black'">&starf;</h5>
+                    <h5 th:style="${(item.stars>1)}? 'color: yellow' : 'color: black'">&starf;</h5>
+                    <h5 th:style="${(item.stars>2)}? 'color: yellow' : 'color: black'">&starf;</h5>
+                    <h5 th:style="${(item.stars>3)}? 'color: yellow' : 'color: black'">&starf;</h5>
+                    <h5 th:style="${(item.stars>4)}? 'color: yellow' : 'color: black'">&starf;</h5>
+                </div>
+            </div>
+        </div>
+        <div class="m-3">
+            <form th:action="@{/delete}" method="post" class="row">
+                <a class="btn btn-success text-center mr-3"
+                   th:href="@{'/edit/'+${item.id+'_'+item.name.replaceAll(' ','')}}" th:text="#{button.edit}"></a>
+                <button class="btn btn-danger btn" name="id" th:value="${item.id}"
+                        th:text="#{button.delete}"></button>
+            </form>
+        </div>
+    </div>
+</section>
+</html>

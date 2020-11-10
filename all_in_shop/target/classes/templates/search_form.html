@@ -1,0 +1,9 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<form th:action="@{/search}" method="get">
+    <div class="form-group row mx-0">
+        <input type="text" name="query" class="form-control" style="width: 70%;" th:placeholder="#{search.placeholder}">
+        <button class="btn  col-3 ml-auto text-light" th:text="#{search.button}"
+                style="width: 20%; background: darkslategray"></button>
+    </div>
+</form>
+</html>
