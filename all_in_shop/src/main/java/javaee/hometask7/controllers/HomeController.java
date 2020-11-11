@@ -24,21 +24,21 @@ public class HomeController {
 
     @GetMapping(value = "/")
     public String index(Model model, HttpServletRequest request) {
-        func(model,request);
+        func(model, request);
         List<Items> items = itemService.getInTopPageItems();
         model.addAttribute("items", items);
         return "index";
     }
 
     @GetMapping(value = "/all")
-    public String all(Model model,HttpServletRequest request) {
-        func(model,request);
+    public String all(Model model, HttpServletRequest request) {
+        func(model, request);
         return "all_items";
     }
 
     @GetMapping(value = "/details/{id}")
     public String details(Model model, @PathVariable(name = "id") String _id, HttpServletRequest request) {
-        func(model,request);
+        func(model, request);
         Long id = Long.parseLong(_id.split("_")[0]);
         model.addAttribute("item", itemService.getItem(id));
 
@@ -47,7 +47,7 @@ public class HomeController {
 
     @GetMapping(value = "/edit/{id}")
     public String editPage(Model model, HttpServletRequest request, @PathVariable(name = "id") String _id) {
-        func(model,request);
+        func(model, request);
         Long id = Long.parseLong(_id.split("_")[0]);
         model.addAttribute("item", itemService.getItem(id));
 
@@ -94,7 +94,7 @@ public class HomeController {
     public String search(@RequestParam(value = "query", defaultValue = "") String query,
                          @RequestParam(value = "order", defaultValue = "asc") String order,
                          Model model, HttpServletRequest request) {
-        func(model,request);
+        func(model, request);
         List<Items> items;
         if (order.equals("desc"))
             items = itemService.getItemsByQueryOrderByPriceDesc(query);
@@ -114,7 +114,7 @@ public class HomeController {
                          @RequestParam(value = "order", defaultValue = "asc") String order,
                          @RequestParam(value = "brand", defaultValue = "1") Long brand,
                          HttpServletRequest request) {
-        func(model,request);
+        func(model, request);
         List<Items> items;
         if (order.equals("desc"))
             items = itemService.getItemsByNameContainsAndBrandsIsAndPriceBetweenOrderByPriceDesc(name, itemService.getBrand(brand), price1, price2);
@@ -128,10 +128,11 @@ public class HomeController {
         model.addAttribute("query", request.getQueryString());
         return "search";
     }
+
     @GetMapping(value = "/country")
-    public String country(Model model,HttpServletRequest request,
-                          @RequestParam(value = "id") Long country_id){
-        func(model,request);
+    public String country(Model model, HttpServletRequest request,
+                          @RequestParam(value = "id") Long country_id) {
+        func(model, request);
         List<Brands> brands = itemService.getAllByCountriesIs(itemService.getCountry(country_id));
         model.addAttribute("brands1", brands);
         Countries country = itemService.getCountry(country_id);
@@ -139,12 +140,17 @@ public class HomeController {
         return "country";
     }
 
-    public void func(Model model, HttpServletRequest request){
+    public void func(Model model, HttpServletRequest request) {
         List<Brands> brands = itemService.getAllBrands();
         List<Items> items = itemService.getAllItems();
         model.addAttribute("brands", brands);
         model.addAttribute("items", items);
-        Cookie cookie = request.getCookies()[0];
-        model.addAttribute("lng",cookie.getValue());
+        Cookie[] cookies = request.getCookies();
+        for (Cookie c : cookies) {
+            if (c.getName().equals("language")){
+                model.addAttribute("lng", c.getValue());
+                break;
+            }
+        }
     }
 }

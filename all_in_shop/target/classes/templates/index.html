@@ -10,7 +10,7 @@
                 <div class="card-body">
                     <h5 class="card-title"><a th:href="@{'/details/'+${it.id+'_'+it.name.replaceAll(' ', '')}}" th:text="${it.name}">></a></h5>
                     <h6 th:text="${it.price +' USD'}"></h6>
-                    <p th:text="${it.description}"></p>
+                    <p  th:text="${it.description}" style="height: 130px; overflow: hidden;"></p>
                     <h6 class="ml-1 text-uppercase font-weight-bold row">
                         <span th:text="#{h6.brand}" class="mr-1"></span>
                         <a th:href="@{'/search/advanced/?brand='+${it.brands.id}}" th:text="${' '+it.brands.name+','}" class="mr-1"></a>

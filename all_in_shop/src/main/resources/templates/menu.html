@@ -1,6 +1,6 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <div class="card font-weight-bold">
-    <div class="card-header text-light" th:text="#{menu.categories}"  style="background: darkslategray"></div>
+    <div class="card-header text-light w3-indigo" th:text="#{menu.categories}"></div>
     <ul class="list-group font-weight-bold">
         <li class="list-group-item">
             <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-cart3" fill="currentColor"
@@ -48,30 +48,31 @@
     </ul>
 </div>
 <div class="card font-weight-bold mt-2 ">
-    <div class="card-header  text-light" th:text="#{menu.brands}"  style="background: darkslategray"></div>
+    <div class="card-header  text-light w3-indigo" th:text="#{menu.brands}"></div>
     <a th:each="brand : ${brands}" th:href="@{'/search/advanced/?brand='+${brand.id}}" class="list-group-item text-dark"  th:text="${brand.name}"></a>
+    <a href="" class="list-group-item text-dark" th:text="#{brands.other}"></a>
 </div>
 <div class="card font-weight-bold mt-2">
-    <div class="card-header  text-light" th:text="#{menu.payments}"  style="background: darkslategray"></div>
+    <div class="card-header  text-light w3-indigo" th:text="#{menu.payments}" ></div>
     <div class="card-body">
         <div class="row row-cols-3">
             <a href="">
-                <img src="https://cdn.iconscout.com/icon/free/png-512/apple-pay-1-534001.png" alt="" height="50" width="70">
+                <img src="https://cdn.iconscout.com/icon/free/png-512/apple-pay-1-534001.png" alt="" height="50" width="70" style="filter: grayscale(100%);">
             </a>
             <a href="">
-                <img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/363_Visa_Credit_Card_logo-512.png" alt="" height="50" width="70">
+                <img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/363_Visa_Credit_Card_logo-512.png" alt="" height="50" width="70" style="filter: grayscale(100%);">
             </a>
             <a href="">
-                <img src="https://icons-for-free.com/iconfiles/png/512/payment+paypal+icon-1320186068053719240.png" alt="" height="50" width="70">
+                <img src="https://icons-for-free.com/iconfiles/png/512/payment+paypal+icon-1320186068053719240.png" alt="" height="50" width="70" style="filter: grayscale(100%);">
             </a>
             <a href="">
-                <img src="https://www.travelfreedompodcast.com/wp-content/uploads/2017/11/Amazon-Logo.jpg" alt="" height="50" width="70">
+                <img src="https://www.travelfreedompodcast.com/wp-content/uploads/2017/11/Amazon-Logo.jpg" alt="" height="50" width="70" style="filter: grayscale(100%);">
             </a>
             <a href="">
-                <img src="https://w7.pngwing.com/pngs/92/785/png-transparent-mastercard-logo-mastercard-credit-card-payment-visa-nyse-ma-mastercard-logo-text-logo-sign.png" alt="" height="50" width="70">
+                <img src="https://w7.pngwing.com/pngs/92/785/png-transparent-mastercard-logo-mastercard-credit-card-payment-visa-nyse-ma-mastercard-logo-text-logo-sign.png" alt="" height="40" width="70" class="mt-1" style="filter: grayscale(100%);">
             </a>
             <a href="">
-                <img src="https://e7.pngegg.com/pngimages/711/297/png-clipart-logo-american-express-payment-computer-icons-brand-american-express-blue-text-thumbnail.png" alt="" height="50" width="70">
+                <img src="https://e7.pngegg.com/pngimages/711/297/png-clipart-logo-american-express-payment-computer-icons-brand-american-express-blue-text-thumbnail.png" alt="" height="50" width="70" style="filter: grayscale(100%);">
             </a>
         </div>
     </div>

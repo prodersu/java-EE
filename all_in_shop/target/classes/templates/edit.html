@@ -11,7 +11,7 @@
             </div>
             <div class="form-group">
                 <label th:text="#{label.description}"></label>
-                <input type="text" name="desc" class="form-control" th:value="${item.description}">
+                <textarea name="desc" id="" rows="6" class="form-control" th:text="${item.description }"></textarea>
             </div>
             <div class="form-group">
                 <label th:text="#{label.price}"></label>
