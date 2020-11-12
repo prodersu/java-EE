@@ -31,37 +31,12 @@
         <h4 class="col" th:text="#{h4.search_results}"></h4>
         <label th:text="#{label.order}"></label>
         <div class="col btn-group btn-group-sm" role="group">
-            <a class="btn btn-secondary" th:href="@{'?'+${query}}" th:text="#{button.asc}"></a>
-            <a class="btn btn-secondary" th:href="@{'?'+${query}+'&order=desc'}" th:text="#{button.desc}"></a>
+            <a class="btn btn-outline-dark w3-medium" th:href="@{'?'+${query}}" th:text="#{button.asc}"></a>
+            <a class="btn btn-outline-dark w3-medium" th:href="@{'?'+${query}+'&order=desc'}" th:text="#{button.desc}"></a>
         </div>
     </div>
-    <div class="row row-cols-3">
-        <div class="col pt-2" th:each="it: ${items1}">
-            <div class="card">
-                <img th:src="${it.smallPicURL}" class="card-img-top" alt="..." height="220" width="220">
-                <div class="card-body">
-                    <h5 class="card-title"><a th:href="@{'/details/'+${it.id+'_'+it.name.replaceAll(' ', '')}}"
-                                              th:text="${it.name}">></a></h5>
-                    <h6 th:text="${it.price +' USD'}"></h6>
-                    <p  th:text="${it.description}" style="height: 130px; overflow: hidden;"></p>
-                    <h6 class="ml-1 text-uppercase font-weight-bold row">
-                        <span th:text="#{h6.brand}" class="mr-1"></span>
-                        <a th:href="@{'/search/advanced/?brand='+${it.brands.id}}" th:text="${' '+it.brands.name+','}" class="mr-1"></a>
-                        <a th:href="@{'/country?id='+${it.brands.countries.id}}" th:text="${it.brands.countries.code}"></a>
-                    </h6>
-                </div>
-                <div class="ml-1 card-footer">
-                    <div class="row">
-                        <h5 th:style="${(it.stars>0)}? 'color: yellow' : 'color: black'">&starf;</h5>
-                        <h5 th:style="${(it.stars>1)}? 'color: yellow' : 'color: black'">&starf;</h5>
-                        <h5 th:style="${(it.stars>2)}? 'color: yellow' : 'color: black'">&starf;</h5>
-                        <h5 th:style="${(it.stars>3)}? 'color: yellow' : 'color: black'">&starf;</h5>
-                        <h5 th:style="${(it.stars>4)}? 'color: yellow' : 'color: black'">&starf;</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <section th:insert="~{items_list}"></section>
+
     <div class="modal fade" id="add" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">

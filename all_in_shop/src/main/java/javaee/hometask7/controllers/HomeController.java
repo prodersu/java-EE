@@ -33,6 +33,8 @@ public class HomeController {
     @GetMapping(value = "/all")
     public String all(Model model, HttpServletRequest request) {
         func(model, request);
+        List<Items> items = itemService.getAllItems();
+        model.addAttribute("items", items);
         return "all_items";
     }
 
@@ -101,7 +103,7 @@ public class HomeController {
         else
             items = itemService.getItemsByQueryAsc(query);
 
-        model.addAttribute("items1", items);
+        model.addAttribute("items", items);
         model.addAttribute("name", query);
         model.addAttribute("query", request.getQueryString());
         return "search";
@@ -120,7 +122,7 @@ public class HomeController {
             items = itemService.getItemsByNameContainsAndBrandsIsAndPriceBetweenOrderByPriceDesc(name, itemService.getBrand(brand), price1, price2);
         else
             items = itemService.getItemsByNameContainsAndBrandsIsAndPriceBetweenOrderByPriceAsc(name, itemService.getBrand(brand), price1, price2);
-        model.addAttribute("items1", items);
+        model.addAttribute("items", items);
         model.addAttribute("brand_id", brand);
         model.addAttribute("name", name);
         model.addAttribute("price1", price1);
@@ -142,15 +144,20 @@ public class HomeController {
 
     public void func(Model model, HttpServletRequest request) {
         List<Brands> brands = itemService.getAllBrands();
-        List<Items> items = itemService.getAllItems();
         model.addAttribute("brands", brands);
-        model.addAttribute("items", items);
         Cookie[] cookies = request.getCookies();
-        for (Cookie c : cookies) {
-            if (c.getName().equals("language")){
-                model.addAttribute("lng", c.getValue());
-                break;
+        String lng_param = request.getParameter("lng");
+        if (lng_param!=null){
+            model.addAttribute("lng", lng_param);
+        }
+        else{
+            for (Cookie c : cookies) {
+                if (c.getName().equals("language")){
+                    model.addAttribute("lng", c.getValue());
+                    break;
+                }
             }
         }
+
     }
 }
