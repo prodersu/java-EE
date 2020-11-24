@@ -1,6 +1,7 @@
 package javaee.hometask7.repositories;
 
 import javaee.hometask7.entities.Brands;
+import javaee.hometask7.entities.Categories;
 import javaee.hometask7.entities.Items;
 import javaee.hometask7.services.ItemService;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,5 +20,5 @@ public interface ItemRepository extends JpaRepository<Items, Long> {
 
     List<Items> findAllByNameContainsAndBrandsIsAndPriceBetweenOrderByPriceAsc(String name, Brands brands, double price1, double price2);
     List<Items> findAllByNameContainsAndBrandsIsAndPriceBetweenOrderByPriceDesc(String name, Brands brands, double price1, double price2);
-
+    List<Items> findAllByCategoriesContains(Categories categories);
 }

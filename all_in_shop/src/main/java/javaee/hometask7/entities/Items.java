@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -36,4 +37,8 @@ public class Items {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Brands brands;
+
+    @ManyToMany
+    private List<Categories> categories;
+
 }

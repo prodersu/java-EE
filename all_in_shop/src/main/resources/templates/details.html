@@ -25,14 +25,7 @@
                 </div>
             </div>
         </div>
-        <div class="m-3">
-            <form th:action="@{/delete}" method="post" class="row">
-                <a class="btn btn-success text-center mr-3"
-                   th:href="@{'/edit/'+${item.id+'_'+item.name.replaceAll(' ','')}}" th:text="#{button.edit}"></a>
-                <button class="btn btn-danger btn" name="id" th:value="${item.id}"
-                        th:text="#{button.delete}"></button>
-            </form>
-        </div>
+
     </div>
 </section>
 </html>

@@ -1,8 +1,10 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorate="~{main.html}">
 <section layout:fragment="content">
-    <div th:insert="~{search_form}"></div>
-    <div th:insert="~{carousel}"></div>
+    <div th:insert="search_form"></div>
+    <div class="bg-primary py-2">
+        <h4 class="display-4 text-light text-center" th:text="${cat_name}"></h4>
+    </div>
     <section th:insert="~{items_card}"></section>
 </section>
 </html>

@@ -1,6 +1,7 @@
 package javaee.hometask7.services.impl;
 
 import javaee.hometask7.entities.Brands;
+import javaee.hometask7.entities.Categories;
 import javaee.hometask7.entities.Countries;
 import javaee.hometask7.entities.Items;
 import javaee.hometask7.repositories.BrandsRepository;
@@ -18,12 +19,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     private ItemRepository itemRepository;
-
-    @Autowired
-    private CountriesRepository countriesRepository;
-
-    @Autowired
-    private BrandsRepository brandsRepository;
 
 
     @Override
@@ -62,38 +57,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Brands> getAllByCountriesIs(Countries countries) {
-        return brandsRepository.findAllByCountriesIs(countries);
-    }
-
-    @Override
-    public List<Countries> getAllCountries() {
-        return countriesRepository.findAll();
-    }
-
-    @Override
-    public Countries addCountry(Countries country) {
-        return countriesRepository.save(country);
-    }
-
-    @Override
-    public Countries getCountry(Long id) {
-        return countriesRepository.getOne(id);
-    }
-
-    @Override
-    public List<Brands> getAllBrands() {
-        return brandsRepository.findAll();
-    }
-
-    @Override
-    public Brands getBrand(Long id) {
-        return brandsRepository.getOne(id);
-    }
-
-    @Override
-    public Brands addBrand(Brands brand) {
-        return brandsRepository.save(brand);
+    public List<Items> getItemsByCategoriesContains(Categories categories) {
+        return itemRepository.findAllByCategoriesContains(categories);
     }
 
     @Override
