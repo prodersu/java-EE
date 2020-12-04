@@ -1,0 +1,29 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorate="~{main.html}">
+<section layout:fragment="content">
+    <div class="col-8 offset-2">
+        <form action="/register" method="post">
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" class="form-control" name="email">
+            </div>
+            <div class="form-group">
+                <label th:text="#{label.fullName}+':'"></label>
+                <input type="text" class="form-control" name="name">
+            </div>
+            <div class="form-group">
+                <label th:text="#{label.password}"></label>
+                <input type="password" class="form-control" name="new_pass" id="pass1">
+            </div>
+            <div class="form-group">
+                <label th:text="#{label.confirmPassword}"></label>
+                <input type="password" class="form-control" name="confirm_pass" id="pass2">
+            </div>
+            <div class="alert alert-danger my-2" th:if="${(error!=null)}">
+                <p th:if="${error.equals('confirm')}" th:text="#{error.confirm1}"></p>
+            </div>
+            <button class="btn btn-success ml-auto" th:text="#{button.signup}"></button>
+        </form>
+    </div>
+</section>
+</html>

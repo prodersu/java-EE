@@ -1,0 +1,94 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorate="~{admin.html}">
+<section layout:fragment="content_admin">
+    <div class="row mt-3 pr-0">
+        <h4 th:text="#{label.roles}"></h4>
+        <button class="btn btn-dark ml-auto" data-toggle="modal" data-target="#add_role"
+            th:text="#{add_new.button}"></button>
+    </div>
+    <table class="table mt-3">
+        <thead>
+        <th>ID</th>
+        <th class="text-uppercase" th:text="#{th.name}"></th>
+        <th class="text-uppercase" th:text="#{label.description}"></th>
+        <th class="text-uppercase text-right" th:text="#{label.details}"></th>
+        </thead>
+        <tbody>
+        <tr th:each="role : ${roles}">
+            <td th:text="${role.id}"></td>
+            <td th:text="${role.role}"></td>
+            <td th:text="${role.description}"></td>
+            <td class="text-right pr-0">
+                <button class="btn btn-dark btn-sm" data-toggle="modal" th:data-target="${'#edit'+role.id}">
+                    <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-pencil-square" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                    </svg>
+                </button>
+            </td>
+            <div class="modal fade" th:id="${'edit'+role.id}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form th:action="@{/admin/edit_role}" method="post">
+                            <div class="modal-header">
+                                <h5 class="modal-title" th:text="#{button.edit}+' '+ #{label.roles}"></h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label th:text="#{label.name}"></label>
+                                    <input type="text" name="name" class="form-control" th:value="${role.role}">
+                                </div>
+                                <div class="form-group">
+                                    <label th:text="#{label.description}+':'"></label>
+                                    <input type="text" name="desc" class="form-control" th:value="${role.description}">
+                                </div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <input type="hidden" name="id" th:value="${role.id}">
+                                <button type="submit" class="btn btn-primary" th:text="#{button.edit}"></button>
+                                <a th:href="@{'/admin/delete_role?id='+${role.id}}" class="btn btn-danger" th:text="#{button.delete}"></a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="modal fade" id="add_role" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form th:action="@{/admin/add_role}" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title" th:text="#{add.button}+' '+#{label.roles}"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label th:text="#{label.name}"></label>
+                            <input type="text" name="name" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label th:text="#{label.description}+':'"></label>
+                            <input type="text" name="desc" class="form-control">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                th:text="#{close.button}"></button>
+                        <button type="submit" class="btn btn-primary" th:text="#{add.button}"></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+</html>

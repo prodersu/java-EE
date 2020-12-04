@@ -1,0 +1,43 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorate="~{main.html}">
+<section layout:fragment="content">
+    <div class="col-8 offset-2">
+        <div th:if="${success!=null}" class="alert alert-success mb-2">
+            <p th:text="#{p.success}"></p>
+        </div>
+        <form action="/update_profile" method="post">
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" class="form-control" name="email" th:value="${user.email}">
+            </div>
+            <div class="form-group">
+                <label th:text="#{label.fullName}+':'"></label>
+                <input type="text" class="form-control" name="name" th:value="${user.fullName}">
+            </div>
+            <input type="hidden" name="id" th:value="${user.id}">
+            <button class="btn btn-success ml-auto text-uppercase" th:text="#{button.updateProfile}"></button>
+        </form>
+        <form action="/update_password" method="post">
+            <div class="alert alert-danger my-2" th:if="${(error!=null)}">
+                <p th:if="${error.equals('confirm')}" th:text="#{error.confirm}"></p>
+                <p th:if="${error.equals('pass')}" th:text="#{error.password}"></p>
+            </div>
+            <div class="form-group">
+                <label>Old Password:</label>
+                <input type="password" class="form-control" name="old_pass">
+            </div>
+            <div class="form-group">
+                <label>New Password:</label>
+                <input type="password" class="form-control" name="new_pass" id="pass1">
+            </div>
+            <div class="form-group">
+                <label>Confirm Password:</label>
+                <input type="password" class="form-control" name="confirm_pass" id="pass2">
+                <p class="d-none" id="alert"></p>
+            </div>
+            <input type="hidden" name="id" th:value="${user.id}">
+            <button type="submit" class="btn btn-success ml-auto text-uppercase" th:text="#{button.updatePassword}"></button>
+        </form>
+    </div>
+</section>
+</html>

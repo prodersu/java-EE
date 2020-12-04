@@ -1,8 +1,11 @@
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en"
+      xmlns:sec = "http://www.thymeleaf.org/extras/spring-security">
 <div class="card mt-3">
     <div class="card-header bg-info text-light text-uppercase font-weight-bold" th:text="#{dashboard}"></div>
+    <a href="/admin/users" sec:authorize="hasRole('ROLE_ADMIN')" class="list-group-item text-dark" th:text="#{label.users}"></a>
+    <a href="/admin/roles" sec:authorize="hasRole('ROLE_ADMIN')" class="list-group-item text-dark" th:text="#{label.roles}"></a>
     <a href="/admin/items" class="list-group-item text-dark" th:text="#{a.product_items}"></a>
-    <a href="/admin/brands" class="list-group-item text-dark" th:text="#{menu.brands}"></a>
-    <a href="/admin/countries" class="list-group-item text-dark" th:text="#{menu.countries}"></a>
-    <a href="/admin/categories" class="list-group-item text-dark" th:text="#{menu.categories}"></a>
+    <a href="/admin/brands" sec:authorize="hasRole('ROLE_ADMIN')" class="list-group-item text-dark" th:text="#{menu.brands}"></a>
+    <a href="/admin/countries" sec:authorize="hasRole('ROLE_ADMIN')" class="list-group-item text-dark" th:text="#{menu.countries}"></a>
+    <a href="/admin/categories" sec:authorize="hasRole('ROLE_ADMIN')" class="list-group-item text-dark" th:text="#{menu.categories}"></a>
 </div>

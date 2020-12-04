@@ -3,16 +3,26 @@ package javaee.hometask7.controllers;
 import javaee.hometask7.entities.*;
 import javaee.hometask7.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.transform.sax.SAXResult;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -27,10 +37,16 @@ public class HomeController {
     private CategoryService categoryService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private BCryptPasswordEncoder encoder;
+
 
 
     @GetMapping(value = "/")
-    public String index(Model model, HttpServletRequest request) {
+    public String index(Model model, HttpServletRequest request, HttpServletResponse response) {
+        if (request.getCookies()==null) {
+            response.addCookie(new Cookie("language", "en"));
+        }
         lng_config(request);
         List<Items> items = itemService.getInTopPageItems();
         model.addAttribute("items", items);
@@ -121,10 +137,106 @@ public class HomeController {
     }
 
     @GetMapping(value = "/login")
+    @PreAuthorize("isAnonymous()")
     public String login(HttpServletRequest request){
         lng_config(request);
+        if (request.getParameter("error")!=null){
+            request.setAttribute("error", "999");
+        }
         return "login";
     }
+    @GetMapping(value = "/admin")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MODERATOR')")
+    public String admin(){
+        return "redirect:/admin/items";
+    }
+
+
+    @GetMapping(value = "/profile")
+    @PreAuthorize("isAuthenticated()")
+    public String profile(HttpServletRequest request){
+        lng_config(request);
+        if (request.getParameter("error")!=null) {
+            request.setAttribute("error", request.getParameter("error"));
+        }
+        if (request.getParameter("success")!=null){
+            request.setAttribute("success", "999");
+        }
+        return "profile";
+    }
+    @PostMapping(value = "/update_profile")
+    @PreAuthorize("isAuthenticated()")
+    public String updateProfile(@RequestParam("email") String email,
+                                @RequestParam("name") String fullName){
+        Users user = getUserData();
+        user.setEmail(email);
+        user.setFullName(fullName);
+        userService.saveUser(user);
+        User user1 = new User(email, user.getPassword(), user.getRoles());
+        Authentication authentication1 = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user1, authentication1.getCredentials(),authentication1.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+
+        return "redirect:/profile";
+    }
+
+    @GetMapping(value = "/register")
+    @PreAuthorize("isAnonymous()")
+    public String registerPage(HttpServletRequest request){
+        lng_config(request);
+        if (request.getParameter("error")!=null) {
+            request.setAttribute("error", request.getParameter("error"));
+        }
+        return "register";
+    }
+
+    @PostMapping(value = "/register")
+    @PreAuthorize("isAnonymous()")
+    public String register(@RequestParam("email") String email,
+                           @RequestParam("name") String fullName,
+                           @RequestParam("new_pass") String pass1,
+                           @RequestParam("confirm_pass") String pass2){
+        if (pass1.equals(pass2)){
+            List<Roles> roles = new ArrayList<>();
+            Roles role = userService.getRole("ROLE_USER");
+            roles.add(role);
+            pass1 = encoder.encode(pass1);
+            Users user = new Users(null, email, pass1, fullName, roles);
+            userService.addUser(user);
+            return "redirect:/login";
+        }
+        return "redirect:/register?error=confirm";
+    }
+
+    @PostMapping(value = "/update_password")
+    @PreAuthorize("isAuthenticated()")
+    public String passUpdate(@RequestParam("old_pass") String oldPass,
+                      @RequestParam("new_pass") String newPass,
+                      @RequestParam("confirm_pass") String newPass2){
+        Users user = getUserData();
+        if (!encoder.matches(oldPass, user.getPassword())){
+            return "redirect:/profile?error=pass";
+        }
+        else {
+            if (!(newPass.equals(newPass2))){
+                return "redirect:/profile?error=confirm";
+            }
+            else{
+                newPass = encoder.encode(newPass);
+                user.setPassword(newPass);
+                userService.saveUser(user);
+                User user1 = new User(user.getEmail(), user.getPassword(), user.getRoles());
+                Authentication authentication1 = SecurityContextHolder.getContext().getAuthentication();
+                Authentication authentication = new UsernamePasswordAuthenticationToken(user1, authentication1.getCredentials(),authentication1.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                return "redirect:/profile?success";
+            }
+        }
+    }
+
+
+
 
     private Users getUserData(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -150,10 +262,12 @@ public class HomeController {
             request.setAttribute("lng", lng_param);
         }
         else{
-            for (Cookie c: cookies) {
-                if (c.getName().equals("language")){
-                    request.setAttribute("lng", c.getValue());
-                    break;
+            if (cookies!=null) {
+                for (Cookie c : cookies) {
+                    if (c.getName().equals("language")) {
+                        request.setAttribute("lng", c.getValue());
+                        break;
+                    }
                 }
             }
         }

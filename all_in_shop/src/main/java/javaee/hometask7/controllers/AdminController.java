@@ -5,9 +5,11 @@ import javaee.hometask7.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -31,12 +33,26 @@ public class AdminController {
     private CategoryService categoryService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private BCryptPasswordEncoder encoder;
 
-
-    @GetMapping(value = "/")
+    @GetMapping(value = "/users")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String admin(){
-        return "redirect:/admin/items";
+    public String users(Model model, HttpServletRequest request) {
+        lng_config(request);
+        List<Users> users = userService.getAllUsers();
+        List<Roles> roles = userService.getAllRoles();
+        model.addAttribute("roles", roles);
+        model.addAttribute("users", users);
+        return "admin_users";
+    }
+    @GetMapping(value = "/roles")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public String roles(Model model, HttpServletRequest request) {
+        lng_config(request);
+        List<Roles> roles = userService.getAllRoles();
+        model.addAttribute("roles", roles);
+        return "admin_roles";
     }
 
     @GetMapping(value = "/categories")
@@ -69,7 +85,7 @@ public class AdminController {
     }
 
     @GetMapping(value = "/items")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MODERATOR')")
     public String items(Model model,  HttpServletRequest request){
         lng_config(request);
         List<Items> items = itemService.getAllItems();
@@ -79,6 +95,70 @@ public class AdminController {
         model.addAttribute("brands", brands);
         model.addAttribute("items", items);
         return "admin_items";
+    }
+    @PostMapping(value = "/add_user")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public String addUser(@RequestParam("email") String email,
+                           @RequestParam("name") String fullName,
+                           @RequestParam("new_pass") String pass1,
+                           @RequestParam("confirm_pass") String pass2,
+                          @RequestParam("role") Long role_id){
+        if (pass1.equals(pass2)){
+            List<Roles> roles = new ArrayList<>();
+            Roles role = userService.getRoleById(role_id);
+            roles.add(role);
+            pass1 = encoder.encode(pass1);
+            Users user = new Users(null, email, pass1, fullName, roles);
+            userService.addUser(user);
+            return "redirect:/admin/users";
+        }
+        return "redirect:/admin/users?error";
+    }
+    @PostMapping(value = "/update_profile")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public String updateProfile(@RequestParam("email") String email,
+                                @RequestParam("name") String fullName,
+                                @RequestParam("id") Long id){
+        Users user = userService.getUserById(id);
+        user.setEmail(email);
+        user.setFullName(fullName);
+        userService.saveUser(user);
+        if (user.equals(getUserData())){
+            User user1 = new User(email, user.getPassword(), user.getRoles());
+            Authentication authentication1 = SecurityContextHolder.getContext().getAuthentication();
+            Authentication authentication = new UsernamePasswordAuthenticationToken(user1, authentication1.getCredentials(),authentication1.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+        return "redirect:/admin/user/"+id;
+    }
+
+    @PostMapping(value = "/update_password")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public String passUpdate(@RequestParam("old_pass") String oldPass,
+                             @RequestParam("new_pass") String newPass,
+                             @RequestParam("confirm_pass") String newPass2,
+                             @RequestParam("id") Long id){
+        Users user = userService.getUserById(id);
+        if (!encoder.matches(oldPass, user.getPassword())){
+            return "redirect:/admin/user/"+id+"?error=pass";
+        }
+        else {
+            if (!(newPass.equals(newPass2))){
+                return "redirect:/admin/user/"+id+"?error=confirm";
+            }
+            else{
+                newPass = encoder.encode(newPass);
+                user.setPassword(newPass);
+                userService.saveUser(user);
+                if (user.equals(getUserData())) {
+                    User user1 = new User(user.getEmail(), user.getPassword(), user.getRoles());
+                    Authentication authentication1 = SecurityContextHolder.getContext().getAuthentication();
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(user1, authentication1.getCredentials(), authentication1.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+                return "redirect:/admin/user/"+id+"?success";
+            }
+        }
     }
 
     @PostMapping(value = "/add_brand")
@@ -141,6 +221,31 @@ public class AdminController {
         countryService.saveCountry(new Countries(id, name, code));
         return "redirect:/admin/countries";
     }
+    @PostMapping(value = "/add_role")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public String addRole(@RequestParam("name") String name,
+                             @RequestParam("desc") String desc){
+        userService.addRole(new Roles(null, name, desc));
+        return "redirect:/admin/roles";
+    }
+    @PostMapping(value = "/edit_role")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public String editRole(@RequestParam("name") String name,
+                              @RequestParam("desc") String desc,
+                              @RequestParam("id") Long id) {
+        Roles role = userService.getRoleById(id);
+        role.setRole(name);
+        role.setDescription(desc);
+        userService.saveRole(role);
+        return "redirect:/admin/roles";
+    }
+    @GetMapping(value = "/delete_role")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public String deleteRole(@RequestParam("id") Long id){
+        Roles roles = userService.getRoleById(id);
+        userService.deleteRole(roles);
+        return "redirect:/admin/roles";
+    }
 
     @GetMapping(value = "/delete_country")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -152,14 +257,14 @@ public class AdminController {
 
 
     @GetMapping(value = "/delete_item")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MODERATOR')")
     public String delete(@RequestParam("id") Long id) {
         itemService.deleteItem(itemService.getItem(id));
         return "redirect:/admin/items";
     }
 
     @PostMapping(value = "/add_item")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MODERATOR')")
     public String add_item(@RequestParam("name") String name,
                            @RequestParam("desc") String desc,
                            @RequestParam("price") double price,
@@ -180,7 +285,7 @@ public class AdminController {
     }
 
     @PostMapping(value = "/edit_item")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MODERATOR')")
     public String edit(@RequestParam("name") String name,
                        @RequestParam("desc") String desc,
                        @RequestParam("price") double price,
@@ -198,7 +303,7 @@ public class AdminController {
     }
 
     @GetMapping(value = "/details/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MODERATOR')")
     public String details(Model model, @PathVariable(name = "id") String _id, HttpServletRequest request) {
         Long id = Long.parseLong(_id.split("_")[0]);
         Items item = itemService.getItem(id);
@@ -214,8 +319,23 @@ public class AdminController {
 
         return "admin_details";
     }
-    @GetMapping(value = "/assign_cat")
+    @GetMapping(value = "/user/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public String userDetails(Model model, @PathVariable(name = "id") String _id, HttpServletRequest request) {
+        Long id = Long.parseLong(_id.split("_")[0]);
+        Users user = userService.getUserById(id);
+        lng_config(request);
+        model.addAttribute("user", user);
+        if (request.getParameter("error")!=null) {
+            request.setAttribute("error", request.getParameter("error"));
+        }
+        if (request.getParameter("success")!=null){
+            request.setAttribute("success", "999");
+        }
+        return "admin_user_details";
+    }
+    @GetMapping(value = "/assign_cat")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MODERATOR')")
     public String assignCat(@RequestParam("id") Long id,
                             @RequestParam("cat_id") Long cat_id){
         Categories category = categoryService.getCategory(cat_id);
@@ -229,7 +349,7 @@ public class AdminController {
 
     }
     @GetMapping(value = "/unassign_cat")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MODERATOR')")
     public String unassignCat(@RequestParam("id") Long id,
                             @RequestParam("cat_id") Long cat_id){
         Categories category = categoryService.getCategory(cat_id);
@@ -256,7 +376,7 @@ public class AdminController {
     public void lng_config(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         String lng_param = request.getParameter("lng");
-        request.setAttribute("user", getUserData());
+        request.setAttribute("currentUser", getUserData());
         if (lng_param != null) {
             request.setAttribute("lng", lng_param);
         } else {

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout">
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec = "http://www.thymeleaf.org/extras/spring-security"
+>
 <head>
     <meta charset="UTF-8">
     <title>All-IN Shop</title>
@@ -35,9 +37,10 @@
         <a href="/" class="navbar-brand font-weight-bold" >
             <div class="shop-brand my-auto" data-micron="bounce">A</div></a>
         <p class="navbar-brand font-weight-bold my-auto">ALL-IN Shop</p>
-        <p class="navbar-brand mr-auto my-auto" th:text="#{admin.panel}"></p>
-
+        <p class="navbar-brand mr-auto my-auto" sec:authorize="hasRole('ROLE_ADMIN')" th:text="#{admin.panel}"></p>
+        <p class="navbar-brand mr-auto my-auto" sec:authorize="hasRole('ROLE_MODERATOR')" th:text="#{moderator.panel}"></p>
         <ul class="navbar nav pr-0">
+            <li class="nav-item text-light mr-2" th:text="${currentUser.fullName}"></li>
             <li class="nav-item">
                 <select class="form-control" onchange="window.location.href=this.options[this.selectedIndex].value">
                     <option value="?lng=en" th:selected="${lng.equals('en')}">EN</option>
@@ -46,7 +49,7 @@
                 </select>
             </li>
             <li class="nav-item">
-                <form action="/logout" method="get">
+                <form action="/logout" method="post">
                     <button type="submit" class="nav-link text-light btn btn-link" th:text="#{a.logout}"></button>
                 </form></li>
         </ul>
