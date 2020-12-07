@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Дек 04 2020 г., 08:14
+-- Время создания: Дек 07 2020 г., 10:33
 -- Версия сервера: 10.4.14-MariaDB
 -- Версия PHP: 7.4.11
 
@@ -162,6 +162,19 @@ INSERT INTO `items_categories` (`items_id`, `categories_id`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Структура таблицы `pictures`
+--
+
+CREATE TABLE `pictures` (
+  `id` bigint(20) NOT NULL,
+  `date` datetime DEFAULT NULL,
+  `url` varchar(255) DEFAULT NULL,
+  `item_id` bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `roles`
 --
 
@@ -190,18 +203,19 @@ CREATE TABLE `users` (
   `id` bigint(20) NOT NULL,
   `email` varchar(255) DEFAULT NULL,
   `full_name` varchar(255) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL
+  `password` varchar(255) DEFAULT NULL,
+  `picture` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Дамп данных таблицы `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `full_name`, `password`) VALUES
-(1, 'admin@mail.ru', 'admin', '$2y$12$OjGhkaq.jMvbfXh2j0BL8e.S1j2S4FlHR23ZlkApNAq53K.sNGEpW'),
-(2, 'user1@mail.ru', 'user1', '$2y$12$Psi4R2sND23DKrgv2XcTHOR3c.SmIx/0RIfVyDcIOets0bSbrKdiq'),
-(3, 'user2@mail.ru', 'user2', '$2a$10$UKz0BbBAfQuGWM8Og8ADvesukFekjViym1jlcVZiHUUgjtrQ8Nzra'),
-(5, 'moderator@mail.ru', 'Moderator', '$2a$10$zZWW86jEyhg2Btx82LWhceGJ4vnFvlR4M1m4Ja9SazFbBzRKLL9.e');
+INSERT INTO `users` (`id`, `email`, `full_name`, `password`, `picture`) VALUES
+(1, 'admin@mail.ru', 'admin', '$2y$12$OjGhkaq.jMvbfXh2j0BL8e.S1j2S4FlHR23ZlkApNAq53K.sNGEpW', NULL),
+(2, 'user1@mail.ru', 'user1', '$2y$12$Psi4R2sND23DKrgv2XcTHOR3c.SmIx/0RIfVyDcIOets0bSbrKdiq', 'd2b878a7fc751e8b97e1c52199f715b17a1d7f9e'),
+(3, 'user2@mail.ru', 'user2', '$2a$10$UKz0BbBAfQuGWM8Og8ADvesukFekjViym1jlcVZiHUUgjtrQ8Nzra', NULL),
+(5, 'moderator@mail.ru', 'Moderator', '$2a$10$zZWW86jEyhg2Btx82LWhceGJ4vnFvlR4M1m4Ja9SazFbBzRKLL9.e', NULL);
 
 -- --------------------------------------------------------
 
@@ -264,6 +278,13 @@ ALTER TABLE `items_categories`
   ADD KEY `FK16oha2jb2sw0ghqe659n752bh` (`items_id`);
 
 --
+-- Индексы таблицы `pictures`
+--
+ALTER TABLE `pictures`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FKkk7b7s3mh3brakqdjn02nqm5r` (`item_id`);
+
+--
 -- Индексы таблицы `roles`
 --
 ALTER TABLE `roles`
@@ -311,6 +332,12 @@ ALTER TABLE `items`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
+-- AUTO_INCREMENT для таблицы `pictures`
+--
+ALTER TABLE `pictures`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT для таблицы `roles`
 --
 ALTER TABLE `roles`
@@ -344,6 +371,12 @@ ALTER TABLE `items`
 ALTER TABLE `items_categories`
   ADD CONSTRAINT `FK16oha2jb2sw0ghqe659n752bh` FOREIGN KEY (`items_id`) REFERENCES `items` (`id`),
   ADD CONSTRAINT `FKyxf17r34k73ewrqm0icx1xar` FOREIGN KEY (`categories_id`) REFERENCES `categories` (`id`);
+
+--
+-- Ограничения внешнего ключа таблицы `pictures`
+--
+ALTER TABLE `pictures`
+  ADD CONSTRAINT `FKkk7b7s3mh3brakqdjn02nqm5r` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`);
 
 --
 -- Ограничения внешнего ключа таблицы `users_roles`
