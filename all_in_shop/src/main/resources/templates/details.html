@@ -14,6 +14,12 @@
                     <a th:href="@{'/search/advanced/?brand='+${item.brands.id}}" th:text="${item.brands.name+','}" class="mr-1"></a>
                     <a th:href="@{'/country?id='+${item.brands.countries.id}}" th:text="${item.brands.countries.code}"></a>
                 </h6>
+                <div th:if="${(pictures!=null and pictures.size()!=0)}">
+                    <h5 th:text="#{label.pictures}"></h5>
+                    <div class="row row-cols-4">
+                        <img th:each="pic : ${pictures}" th:src="@{'/viewphoto/'+${pic.url}}" width="200" height="200" alt="" class="mr-3">
+                    </div>
+                </div>
             </div>
             <div class="ml-1 card-footer">
                 <div class="row">

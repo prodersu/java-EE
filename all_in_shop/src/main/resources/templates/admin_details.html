@@ -44,7 +44,8 @@
         <input type="hidden" name="id" th:value="${item.id}">
         <div class="row">
             <button class="btn btn-success ml-auto" type="submit" th:text="#{button.save}"></button>
-            <a th:href="@{'/admin/delete_item?id='+${item.id}}" class="mx-3 btn btn-danger" th:text="#{button.delete}"></a>
+            <a th:href="@{'/admin/delete_item?id='+${item.id}}" class="mx-3 btn btn-danger"
+               th:text="#{button.delete}"></a>
         </div>
     </form>
     <h5 th:text="#{menu.categories}"></h5>
@@ -64,7 +65,54 @@
             </div>
         </div>
     </ul>
-
-
+    <div class="row">
+        <h5 class="my-2" th:text="#{label.pictures}"></h5>
+        <button class="ml-auto btn btn-success" data-toggle="modal" data-target="#add_pic">+</button>
+    </div>
+    <table class="table" th:if="${(pictures!=null and pictures.size()!=0)}">
+        <thead>
+        <th class="text-uppercase" th:text="#{th.picture}"></th>
+        <th class="text-uppercase">url</th>
+        <th class="text-uppercase" th:text="#{th.date}"></th>
+        <th class="text-uppercase text-right pr-0"></th>
+        </thead>
+        <tbody>
+        <tr th:each="pic : ${pictures}">
+            <td><img th:src="@{'/viewphoto/'+${pic.url}}" alt="" style="width: 80px; height: 80px;"></td>
+            <td th:text="${pic.url}"></td>
+            <td th:text="${pic.date}"></td>
+            <td class="text-right pr-0">
+                <a th:href="@{'/admin/delete_pic?id='+${pic.id}}" class="btn btn-danger btn-sm">-
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="modal fade" id="add_pic" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="/admin/add_pic" method="post" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <h5 class="modal-title" th:text="#{add.button}+' '+#{th.picture}"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" name="pic">
+                            <label class="custom-file-label" th:text="#{input.file}"></label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="item_id" th:value="${item.id}">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                th:text="#{close.button}"></button>
+                        <button type="submit" class="btn btn-primary" th:text="#{add.button}"></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </section>
 </html>

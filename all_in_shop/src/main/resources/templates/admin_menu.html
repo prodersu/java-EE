@@ -2,10 +2,15 @@
       xmlns:sec = "http://www.thymeleaf.org/extras/spring-security">
 <div class="card mt-3">
     <div class="card-header bg-info text-light text-uppercase font-weight-bold" th:text="#{dashboard}"></div>
-    <a href="/admin/users" sec:authorize="hasRole('ROLE_ADMIN')" class="list-group-item text-dark" th:text="#{label.users}"></a>
-    <a href="/admin/roles" sec:authorize="hasRole('ROLE_ADMIN')" class="list-group-item text-dark" th:text="#{label.roles}"></a>
-    <a href="/admin/items" class="list-group-item text-dark" th:text="#{a.product_items}"></a>
-    <a href="/admin/brands" sec:authorize="hasRole('ROLE_ADMIN')" class="list-group-item text-dark" th:text="#{menu.brands}"></a>
-    <a href="/admin/countries" sec:authorize="hasRole('ROLE_ADMIN')" class="list-group-item text-dark" th:text="#{menu.countries}"></a>
-    <a href="/admin/categories" sec:authorize="hasRole('ROLE_ADMIN')" class="list-group-item text-dark" th:text="#{menu.categories}"></a>
+    <a href="/admin/users" sec:authorize="hasRole('ROLE_ADMIN')" th:class="${(page.contains('users'))? 'list-group-item text-light bg-dark': 'list-group-item text-dark'}" th:text="#{label.users}"></a>
+
+    <a href="/admin/roles" sec:authorize="hasRole('ROLE_ADMIN')" th:class="${(page.contains('roles'))? 'list-group-item text-light bg-dark': 'list-group-item text-dark'}" th:text="#{label.roles}"></a>
+
+    <a href="/admin/items" th:class="${(page.contains('items'))? 'list-group-item text-light bg-dark': 'list-group-item text-dark'}" th:text="#{a.product_items}"></a>
+
+    <a href="/admin/brands" sec:authorize="hasRole('ROLE_ADMIN')" th:class="${(page.contains('brands'))? 'list-group-item text-light bg-dark': 'list-group-item text-dark'}" th:text="#{menu.brands}"></a>
+
+    <a href="/admin/countries" sec:authorize="hasRole('ROLE_ADMIN')" th:class="${(page.contains('countries'))? 'list-group-item text-light bg-dark': 'list-group-item text-dark'}" th:text="#{menu.countries}"></a>
+
+    <a href="/admin/categories" sec:authorize="hasRole('ROLE_ADMIN')" th:class="${(page.contains('categories'))? 'list-group-item text-light bg-dark': 'list-group-item text-dark'}" th:text="#{menu.categories}"></a>
 </div>
