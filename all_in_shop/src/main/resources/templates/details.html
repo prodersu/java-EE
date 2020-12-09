@@ -7,7 +7,7 @@
             <img th:src="${item.largePicURL}" class="card-img-top w-100" alt="...">
             <div class="card-body">
                 <h5 class="card-title text-primary" th:text="${item.name}"></h5>
-                <h6 th:text="${item.price +' USD'}"></h6>
+                <h6 th:text="${item.price +' ₸'}"></h6>
                 <p class="card-text" th:text="${item.description}"></p>
                 <h6 class="ml-1 text-uppercase font-weight-bold row">
                     <span th:text="#{h6.brand}" class="mr-1"></span>
@@ -31,7 +31,8 @@
                 </div>
             </div>
         </div>
-
+        <a th:if="${!added}" th:href="@{'/add_basket?id='+${item.id}}" class="btn btn-success mt-3 ml-2" th:text="#{add.basket}"></a>
+        <button th:if="${added}" class="btn btn-info mt-3 ml-2" th:text="#{added}"></button>
     </div>
 </section>
 </html>

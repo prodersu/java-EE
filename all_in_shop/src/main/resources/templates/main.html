@@ -53,6 +53,12 @@
                     <option value="?lng=kz" th:selected="${lng.equals('kz')}">KAZ</option>
                 </select>
             </li>
+            <li class="nav-item">
+                <a href="/basket" class="nav-link text-light" th:text="#{basket}+'('+${basketsize}+')'"></a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+                <a href="/sold" class="nav-link text-light" th:text="#{sold.items}"></a>
+            </li>
             <li class="nav-item" sec:authorize="isAnonymous()">
                 <a href="/login" class="nav-link text-light" th:text="#{a.login}" style="margin-right: 4rem"></a>
             </li>

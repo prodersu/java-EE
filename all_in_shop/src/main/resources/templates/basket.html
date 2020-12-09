@@ -1,0 +1,47 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorate="~{main.html}">
+<section layout:fragment="content">
+    <div>
+        <div class="card">
+            <div class="card-header">
+                <h4 th:text="#{basket}"></h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success" th:if="${success!=null}" th:text="#{alert.success}"></div>
+                <table class="table" th:if="${(basket.size()>0)}">
+                    <thead>
+                    <th class="text-uppercase" th:text="#{a.product_items}"></th>
+                    <th class="text-uppercase" th:text="#{label.price}"></th>
+                    <th class="text-uppercase" th:text="#{label.amount}"></th>
+                    <th></th>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${basket}">
+                        <td th:text="${item.name}"></td>
+                        <td th:text="${item.price+' ₸'}"></td>
+                        <td th:text="${item.amount}"></td>
+                        <td class="text-right pr-0">
+                            <div class="row justify-content-end">
+                                <a th:href="@{'/inc_amount?name='+${item.name}}" class="btn btn-success mr-1"> + </a>
+                                <a th:href="@{'/dec_amount?name='+${item.name}}" class="btn btn-danger mr-2"> - </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="ml-1 card-footer">
+                <form action="/check_in" method="post">
+                    <div class="row">
+                        <h5><span th:text="#{total}+':'"></span>
+                            <span class="font-weight-bold" th:text="${total}+'₸'"></span>
+                        </h5>
+                        <button class="btn btn-dark ml-auto mr-2" th:text="#{check.in}"></button>
+                        <a href="/clear_basket" class="btn btn-danger" th:text="#{clear.basket}"></a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+</html>

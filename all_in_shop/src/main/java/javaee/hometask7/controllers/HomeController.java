@@ -35,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -53,6 +54,9 @@ public class HomeController {
     private UserService userService;
     @Autowired
     private BCryptPasswordEncoder encoder;
+
+    private List<BasketItem> basket = new ArrayList<>();
+    private List<BasketItem> soldBasket = new ArrayList<>();
 
     @Value("${file.avatar.viewPath}")
     private String viewPath;
@@ -99,6 +103,7 @@ public class HomeController {
         model.addAttribute("item", itemService.getItem(id));
         List<Pictures> pictures = picturesService.getPicturesByItem(itemService.getItem(id));
         model.addAttribute("pictures", pictures);
+        model.addAttribute("added", request.getRequestURI().contains("added"));
         return "details";
     }
 
@@ -298,6 +303,121 @@ public class HomeController {
         }
     }
 
+    @GetMapping(value = "/add_basket")
+    public String addBasket(@RequestParam("id") Long item_id,
+                            HttpServletResponse response) {
+        Items item = itemService.getItem(item_id);
+        System.out.println(item.getName());
+        BasketItem item1 = new BasketItem(item_id.toString()+"_"+item.getName(), item.getPrice(), 1, null);
+        basket.add(item1);
+        response.addCookie(new Cookie(item_id.toString(), Double.toString(item.getPrice())));
+        return "redirect:/details/" + item_id + "_added" + item.getName();
+    }
+
+    @GetMapping(value = "/basket")
+    public String Basket(HttpServletRequest request) {
+        request.setAttribute("basket", basket);
+        String success = request.getParameter("success");
+        if (success!=null)
+            request.setAttribute("success", "true");
+        double total = 0;
+        for (BasketItem item : basket
+        ) {
+            total += item.getPrice() * item.getAmount();
+        }
+        request.setAttribute("total", total);
+        lng_config(request);
+        return "basket";
+    }
+    @GetMapping(value = "/sold")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public String soldBasket(HttpServletRequest request, HttpServletResponse response) {
+        request.setAttribute("sold_basket", soldBasket);
+        double total = 0;
+        for (BasketItem item : soldBasket
+        ) {
+
+            total += item.getPrice() * item.getAmount();
+        }
+        request.setAttribute("total", total);
+        lng_config(request);
+        return "buy_log";
+    }
+
+    @GetMapping(value = "/clear_basket")
+    public String clearBasket(HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+        for (Cookie c: cookies
+             ) {
+            if (c.getName().equals("language"))
+                continue;
+            else{
+                c.setMaxAge(0);
+                response.addCookie(c);
+            }
+        }
+        basket.clear();
+        return "redirect:/basket";
+    }
+    @PostMapping(value = "/check_in")
+    public String checkIn(HttpServletRequest request,
+                          HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+        for (Cookie c: cookies
+        ) {
+            if (c.getName().equals("language"))
+                continue;
+            else{
+                c.setMaxAge(0);
+                response.addCookie(c);
+            }
+        }
+        for (BasketItem item: basket
+             ) {
+            item.setDate(new Date());
+            soldBasket.add(item);
+        }
+        basket.clear();
+        return "redirect:/basket?success";
+    }
+
+    @GetMapping(value = "/inc_amount")
+    public String incAmount(@RequestParam("name") String name) {
+        for (BasketItem item : basket) {
+            if (item.getName().equals(name)) {
+                item.setAmount(item.getAmount() + 1);
+            }
+        }
+        return "redirect:/basket";
+    }
+
+    @GetMapping(value = "/dec_amount")
+    public String decAmount(@RequestParam("name") String name,
+                            HttpServletResponse response,
+                            HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        for (BasketItem item : basket) {
+            if (item.getName().equals(name)) {
+                if (item.getAmount() > 1) {
+                    item.setAmount(item.getAmount() - 1);
+                    break;
+                } else if (item.getAmount() == 1) {
+                    for (Cookie c: cookies
+                         ) {
+                        if (c.getName().equals(name.split("_")[0])){
+                            c.setMaxAge(0);
+                            response.addCookie(c);
+                            break;
+                        }
+                    }
+                    basket.remove(item);
+                    break;
+                }
+            }
+        }
+        return "redirect:/basket";
+    }
+
 
     private Users getUserData() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -310,14 +430,13 @@ public class HomeController {
 
     }
 
-
     public void lng_config(HttpServletRequest request) {
         List<Brands> brands = brandService.getAllBrands();
         List<Categories> categories = categoryService.getAllCategories();
         request.setAttribute("user", getUserData());
         request.setAttribute("brands", brands);
         request.setAttribute("categories", categories);
-        request.setAttribute("page", request.getRequestURI());
+        request.setAttribute("basketsize", basket.size());
         String lng_param = request.getParameter("lng");
         Cookie[] cookies = request.getCookies();
         if (lng_param != null) {
