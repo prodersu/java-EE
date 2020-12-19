@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,6 +53,8 @@ public class HomeController {
     private PicturesService picturesService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private CommentService commentService;
     @Autowired
     private BCryptPasswordEncoder encoder;
 
@@ -102,6 +105,10 @@ public class HomeController {
         Long id = Long.parseLong(_id.split("_")[0]);
         model.addAttribute("item", itemService.getItem(id));
         List<Pictures> pictures = picturesService.getPicturesByItem(itemService.getItem(id));
+        List<Comment> comments = commentService.getAllComments(itemService.getItem(id));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy  HH:mm");
+        model.addAttribute("dateFormat", dateFormat);
+        model.addAttribute("comments", comments);
         model.addAttribute("pictures", pictures);
         model.addAttribute("added", request.getRequestURI().contains("added"));
         return "details";
@@ -417,6 +424,32 @@ public class HomeController {
         }
         return "redirect:/basket";
     }
+    @PostMapping(value = "/add_comment")
+    @PreAuthorize("isAuthenticated()")
+    public String addComment(@RequestParam("text") String text,
+                             @RequestParam("item_id") Long item_id){
+        Comment comment = new Comment(null, text, new Date(), itemService.getItem(item_id), getUserData());
+        commentService.addComment(comment);
+        return "redirect:/details/"+item_id+"_item";
+
+    }
+    @PostMapping(value = "delete_comment")
+    @PreAuthorize("isAuthenticated()")
+    public String deleteComment(@RequestParam("id") Long id){
+        Long item_id = commentService.getCommentById(id).getItem().getId();
+        commentService.deleteComment(commentService.getCommentById(id));
+        return "redirect:/details/"+item_id+"_item";
+    }
+    @PostMapping(value = "edit_comment")
+    @PreAuthorize("isAuthenticated()")
+    public String deleteComment(@RequestParam("id") Long id,
+                                @RequestParam("text") String text){
+        Comment comment = commentService.getCommentById(id);
+        Long item_id = comment.getItem().getId();
+        commentService.saveComment(new Comment(id, text, comment.getAddedDate(), itemService.getItem(item_id), comment.getAuthor()));
+        return "redirect:/details/"+item_id+"_item";
+    }
+
 
 
     private Users getUserData() {

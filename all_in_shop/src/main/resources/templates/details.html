@@ -1,4 +1,4 @@
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://ultraq.net.nz/thymeleaf/layout" layout:decorate="~{main.html}">
 <section layout:fragment="content">
     <div th:insert="search_form"></div>
@@ -11,13 +11,16 @@
                 <p class="card-text" th:text="${item.description}"></p>
                 <h6 class="ml-1 text-uppercase font-weight-bold row">
                     <span th:text="#{h6.brand}" class="mr-1"></span>
-                    <a th:href="@{'/search/advanced/?brand='+${item.brands.id}}" th:text="${item.brands.name+','}" class="mr-1"></a>
-                    <a th:href="@{'/country?id='+${item.brands.countries.id}}" th:text="${item.brands.countries.code}"></a>
+                    <a th:href="@{'/search/advanced/?brand='+${item.brands.id}}" th:text="${item.brands.name+','}"
+                       class="mr-1"></a>
+                    <a th:href="@{'/country?id='+${item.brands.countries.id}}"
+                       th:text="${item.brands.countries.code}"></a>
                 </h6>
                 <div th:if="${(pictures!=null and pictures.size()!=0)}">
                     <h5 th:text="#{label.pictures}"></h5>
                     <div class="row row-cols-4">
-                        <img th:each="pic : ${pictures}" th:src="@{'/viewphoto/'+${pic.url}}" width="200" height="200" alt="" class="mr-3">
+                        <img th:each="pic : ${pictures}" th:src="@{'/viewphoto/'+${pic.url}}" width="200" height="200"
+                             alt="" class="mr-3">
                     </div>
                 </div>
             </div>
@@ -31,8 +34,81 @@
                 </div>
             </div>
         </div>
-        <a th:if="${!added}" th:href="@{'/add_basket?id='+${item.id}}" class="btn btn-success mt-3 ml-2" th:text="#{add.basket}"></a>
+        <a th:if="${!added}" th:href="@{'/add_basket?id='+${item.id}}" class="btn btn-success mt-3 ml-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-bag-plus-fill" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M5.5 3.5a2.5 2.5 0 0 1 5 0V4h-5v-.5zm6 0V4H15v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4h3.5v-.5a3.5 3.5 0 1 1 7 0zM8.5 8a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V12a.5.5 0 0 0 1 0v-1.5H10a.5.5 0 0 0 0-1H8.5V8z"/>
+            </svg>
+            <span class="ml-1" th:text="#{add.basket}"></span>
+        </a>
         <button th:if="${added}" class="btn btn-info mt-3 ml-2" th:text="#{added}"></button>
+        <form action="/add_comment" method="post" sec:authorize="isAuthenticated()">
+            <div class="form-group mt-3 text-right">
+                <textarea name="text" class="form-control" rows="3"></textarea>
+                <input type="hidden" name="item_id" th:value="${item.id}">
+                <button class="btn btn-primary mt-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-chat-right-text" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M2 1h12a1 1 0 0 1 1 1v11.586l-2-2A2 2 0 0 0 11.586 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z"/>
+                        <path fill-rule="evenodd" d="M3 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3 6a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 6zm0 2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/>
+                    </svg><span class="ml-1" th:text="#{add.comment}"></span>
+                </button>
+            </div>
+        </form>
+        <ul class="mt-3 list-group list-group-flush">
+            <li class="list-group-item" th:each="com : ${comments}">
+                <div class="row justify-content-between">
+                    <div>
+                        <h5 th:text="${com.author.fullName}"></h5>
+                        <p th:text="${com.comment}"></p>
+                    </div>
+                    <div>
+                        <p th:text="${dateFormat.format(com.addedDate)}"></p>
+                        <form action="/delete_comment" method="post" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_MODERATOR') or com.getAuthor().equals(user)">
+                            <div class="row justify-content-end">
+                                <input type="hidden" name="id" th:value="${com.id}">
+                                <button type="button" class="btn btn-secondary btn-sm mr-2" th:if="${com.getAuthor().equals(user)}"
+                                        th:data-target="${'#delete'+com.id}" data-toggle="modal">
+                                    <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-pencil-square"
+                                         fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                        <path fill-rule="evenodd"
+                                              d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                                    </svg>
+                                </button>
+                                <button type="submit" class="btn btn-danger btn-sm mr-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em"
+                                         fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                        <path fill-rule="evenodd"
+                                              d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal fade" th:id="${'delete'+com.id}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form th:action="@{/edit_comment}" method="post">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" th:text="#{edit.comment}"></h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <textarea name="text" rows="5" th:text="${com.comment}" class="form-control"></textarea>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <input type="hidden" name="id" th:value="${com.id}">
+                                        <button type="submit" class="btn btn-primary" th:text="#{button.edit}"></button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ul>
     </div>
 </section>
 </html>
